@@ -21,6 +21,7 @@ int main()
         q.pop();
     }
 }
+/* leetcode 102题*/
 struct TreeNode {
     int val;
     TreeNode *left;
@@ -37,27 +38,27 @@ vector<vector<int>> LevelOrder(TreeNode* root)
         return {}; // 如果根节点为空，返回空的二维数组
     }
 
-    queue<TreeNode*> q;
-    q.push(root);
+    queue<TreeNode*> myqueue;
+    myqueue.push(root);
     vector<vector<int>> res;
     TreeNode* travelNode = NULL;
 
-    while (!q.empty()) 
+    while (!myqueue.empty()) 
     {
-        int size = q.size();
+        int size = myqueue.size();
         vector<int> levelValues; // 存储当前层的节点值
         for (int idx = 0; idx < size; idx++) 
         {
-            travelNode = q.front();
-            q.pop();
+            travelNode = myqueue.front();
             levelValues.push_back(travelNode->val);
+            myqueue.pop();
             if (travelNode->left) 
             {
-                q.push(travelNode->left);
+                myqueue.push(travelNode->left);
             }
             if (travelNode->right) 
             {
-                q.push(travelNode->right);
+                myqueue.push(travelNode->right);
             }
         }
         res.push_back(levelValues); // 将当前层的节点值添加到结果中
