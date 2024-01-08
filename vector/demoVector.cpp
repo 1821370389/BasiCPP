@@ -8,6 +8,8 @@ using namespace std;    // 命名空间
 #define BUFFER_SIZE 10
 #define NAMESIZE 20
 
+/* demo */
+#if 0
 /* 结构体 */
 typedef struct Stu_info
 {
@@ -72,6 +74,52 @@ int main()
 
 
 #endif
+
+    return 0;
+}
+#endif
+
+
+/* leetcode 160.相交链表 */
+#if 0
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) 
+{
+    ListNode *travelNode1 = headA;
+    ListNode *travelNode2 = headB;
+    while(travelNode1 != nullptr)/* 遍历1*/
+    {
+        if(isExist(travelNode2, travelNode1))
+        {
+            return travelNode1;
+        }
+        travelNode1 = travelNode1->next;
+
+    }
+    return nullptr;
+}
+/* 判断是否存在与指定节点相同的节点 */
+static bool isExist(ListNode *head, ListNode *node)
+{
+    while(head != nullptr)
+    {
+        if(head == node)
+        {
+            return true;
+        }
+        head = head->next;
+    }
+    return false;
+}
+#endif
+
+int main()
+{
+
 
     return 0;
 }
