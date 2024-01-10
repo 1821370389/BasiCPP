@@ -117,8 +117,40 @@ static bool isExist(ListNode *head, ListNode *node)
 }
 #endif
 
+/* */
+
+bool isAnagram(string s, string t) 
+{
+    if(s.size() != t.size() || s.c_str() == t.c_str())
+    {
+        return false;
+    }
+    int charNum[26] = {0};
+    int count = 0;
+    for(int idx = 0; idx < s.size(); idx++)
+    {
+        count = s[idx] - 'a';
+        charNum[count]++;
+    }
+    for(int idx = 0; idx < t.size(); idx++)
+    {
+        count = t[idx] - 'a';
+        charNum[count]--;
+    }
+    for(int idx = 0; idx < 26; idx++)
+    {
+        if(charNum[idx] != 0)
+        {
+            return true;
+        }
+    }
+    return false;
+    
+}
+
 int main()
 {
+    string s = "anagram", t = "nagaram";
 
 
     return 0;
