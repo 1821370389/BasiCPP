@@ -2,6 +2,9 @@
 #define __MY_NET_HPP__
 
 #include <string>
+#include <unistd.h>
+#include <netinet/in.h>
+
 
 /* TCP服务器 */
 class TcpServer
@@ -23,6 +26,9 @@ public:
 
     /* 发送数据 */
     bool Send(int sockfd, const std::string& data);
+
+    /* 关闭连接 */
+    bool Close(int sockfd);
 
 private:
     int sockfd;
@@ -76,15 +82,20 @@ public:
     UdpClient();
     ~UdpClient();
 
+    /* 设置服务器信息 */
+    bool Start(const std::string& ip, int port);
+
     /* 接收数据 */
-    std::string RecvFrom(struct sockaddr_in* client_addr = NULL, socklen_t* len = NULL);
+    std::string RecvFrom();
 
     /* 发送数据给指定客户端 */
-    bool SendTo(const std::string& data, const struct sockaddr_in& client_addr);
+    bool SendTo(const std::string& data);
 
 
 private:
     int sockfd;
+    struct sockaddr_in* server_addr;
+    socklen_t* len;
 };
 
 #endif

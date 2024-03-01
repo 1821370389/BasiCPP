@@ -46,6 +46,7 @@ bool TcpServer::Start(int port, int maxLisentNum)
         perror("listen error");
         return false;
     }
+    return true;
 }
 
 /* 等待客户端连接 */
@@ -119,6 +120,13 @@ bool TcpServer::Send(int sockfd, const std::string& data)
         perror("send error");
         return false;
     }
+    return true;
+}
+
+/* 关闭连接 */
+bool TcpServer::Close(int sockfd)
+{
+    close(sockfd);
     return true;
 }
 
@@ -268,7 +276,7 @@ bool UdpServer::Start(int port)
 }
 
 /* 接收数据 */
-std::string UdpServer::RecvFrom(struct sockaddr_in* client_addr = NULL, socklen_t* len = NULL)
+std::string UdpServer::RecvFrom(struct sockaddr_in* client_addr, socklen_t* len)
 {
     /* 接收数据长度 */
     size_t dataLen;
@@ -278,8 +286,9 @@ std::string UdpServer::RecvFrom(struct sockaddr_in* client_addr = NULL, socklen_
         len = new socklen_t;
         *len = sizeof(struct sockaddr_in);
     }
+    std::cout << "waiting for data..." << std::endl;
     
-    int ret = recvfrom(this->sockfd, &dataLen, sizeof(dataLen), 0, (struct sockaddr*)client_addr, len);
+    int ret = recvfrom(this->sockfd, &dataLen, sizeof(dataLen), MSG_WAITALL, (struct sockaddr*)client_addr, len);
     if (ret < 0)
     {
         perror("recvfrom error");
@@ -294,7 +303,7 @@ std::string UdpServer::RecvFrom(struct sockaddr_in* client_addr = NULL, socklen_
     /* 接收数据 */
     char *buf = new char[dataLen + 1];
     memset(buf, 0, dataLen + 1);
-    ret = recvfrom(this->sockfd, buf, dataLen, 0, (struct sockaddr*)client_addr, len);
+    ret = recvfrom(this->sockfd, buf, dataLen, MSG_WAITALL, (struct sockaddr*)client_addr, len);
     if (ret < 0)
     {
         perror("recvfrom error");
@@ -317,7 +326,7 @@ bool UdpServer::SendTo(const std::string& data, const struct sockaddr_in& client
     size_t dataLen = data.size();
 
     /* 发送数据长度 */
-    int ret = sendto(this->sockfd, &dataLen, sizeof(dataLen), 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
+    int ret = sendto(this->sockfd, &dataLen, sizeof(dataLen), MSG_CONFIRM, (struct sockaddr*)&client_addr, sizeof(client_addr));
     if (ret < 0)
     {
         perror("sendto error");
@@ -330,7 +339,7 @@ bool UdpServer::SendTo(const std::string& data, const struct sockaddr_in& client
     }
 
     /* 发送数据 */
-    ret = sendto(this->sockfd, data.c_str(), dataLen, 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
+    ret = sendto(this->sockfd, data.c_str(), dataLen, MSG_CONFIRM, (struct sockaddr*)&client_addr, sizeof(client_addr));
     if (ret < 0)
     {
         perror("sendto error");
@@ -349,25 +358,40 @@ bool UdpServer::SendTo(const std::string& data, const struct sockaddr_in& client
 UdpClient::UdpClient()
 {
     this->sockfd = -1;
+    this->server_addr = NULL;
+    this->len = NULL;
 }
 UdpClient::~UdpClient()
 {
     close(this->sockfd);
 }
 
+
+/* 设置服务器信息 */
+bool UdpClient::Start(const std::string& ip, int port)
+{
+    this->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (this->sockfd < 0)
+    {
+        perror("socket error");
+        return false;
+    }
+    this->server_addr = new struct sockaddr_in;
+    this->len = new socklen_t;
+    *this->len = sizeof(struct sockaddr_in);
+    this->server_addr->sin_family = AF_INET;
+    this->server_addr->sin_port = htons(port);
+    this->server_addr->sin_addr.s_addr = inet_addr(ip.c_str());
+    return true;
+}
+
 /* 接收数据 */
-std::string UdpServer::RecvFrom(struct sockaddr_in* client_addr = NULL, socklen_t* len = NULL)
+std::string UdpClient::RecvFrom()
 {
     /* 接收数据长度 */
     size_t dataLen;
-    if (client_addr == NULL || len == NULL)
-    {
-        client_addr = new struct sockaddr_in;
-        len = new socklen_t;
-        *len = sizeof(struct sockaddr_in);
-    }
     
-    int ret = recvfrom(this->sockfd, &dataLen, sizeof(dataLen), 0, (struct sockaddr*)client_addr, len);
+    int ret = recvfrom(this->sockfd, &dataLen, sizeof(dataLen), 0, (struct sockaddr*)this->server_addr, this->len);
     if (ret < 0)
     {
         perror("recvfrom error");
@@ -382,7 +406,7 @@ std::string UdpServer::RecvFrom(struct sockaddr_in* client_addr = NULL, socklen_
     /* 接收数据 */
     char *buf = new char[dataLen + 1];
     memset(buf, 0, dataLen + 1);
-    ret = recvfrom(this->sockfd, buf, dataLen, 0, (struct sockaddr*)client_addr, len);
+    ret = recvfrom(this->sockfd, buf, dataLen, 0, (struct sockaddr*)this->server_addr, this->len);
     if (ret < 0)
     {
         perror("recvfrom error");
@@ -399,13 +423,14 @@ std::string UdpServer::RecvFrom(struct sockaddr_in* client_addr = NULL, socklen_
 }
 
 /* 发送数据 */
-bool UdpServer::SendTo(const std::string& data, const struct sockaddr_in& client_addr)
+bool UdpClient::SendTo(const std::string& data)
 {
     /* 获取数据长度 */
     size_t dataLen = data.size();
 
+    std::cout << "sending data..." << std::endl;
     /* 发送数据长度 */
-    int ret = sendto(this->sockfd, &dataLen, sizeof(dataLen), 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
+    int ret = sendto(this->sockfd, &dataLen, sizeof(dataLen), 0, (struct sockaddr*)this->server_addr, sizeof(*this->server_addr));
     if (ret < 0)
     {
         perror("sendto error");
@@ -416,9 +441,9 @@ bool UdpServer::SendTo(const std::string& data, const struct sockaddr_in& client
         std::cout << "client closed" << std::endl;
         return false;
     }
-
+    std::cout << "sending data..." << std::endl;
     /* 发送数据 */
-    ret = sendto(this->sockfd, data.c_str(), dataLen, 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
+    ret = sendto(this->sockfd, data.c_str(), dataLen, 0, (struct sockaddr*)this->server_addr, sizeof(*this->server_addr));
     if (ret < 0)
     {
         perror("sendto error");
