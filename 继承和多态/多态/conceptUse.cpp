@@ -69,5 +69,6 @@ int main()
 {
     Person* per = new Student();
     per->makeMoney();
+    delete per;
     return 0;
 }

@@ -70,7 +70,7 @@ public:
 int main()
 {
     Undergraduate u(90, 800, 404);
-    /* 子类的雷村分布是根据继承生命的顺序，而不是类定义的顺序 */
+    /* 子类的内存分布是根据继承声明的顺序，而不是类定义的顺序 */
     cout << "sizeof(u) = " << sizeof(u) << endl;
     u.showInfo();
     return 0;
