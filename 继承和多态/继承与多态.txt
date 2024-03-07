@@ -6,12 +6,14 @@
     继承的构造                                          // 继承/ParentConstruct.cpp
         子类的构造函数默认会调用父类的无参构造函数
         若父类无无参构造或要使用父类的有参构造，则要使用初始化函数
+    父子指针
+        父指针指向子类是安全的，子类指向父类不安全
     多继承                                              // 继承/Multiplelnheritance.cpp
         子类的内存分布是根据类继承时声明的顺序，而不是类定义的顺序
         多继承虚函数, 类比普通虚函数                    // MultiplelnheritanceVirtualFunc.cpp
         同名函数和变量
             多继承中父类见的同名函数/变量的用法: 对象.父类::函数/变量   // theSameNameFun.cpp
-    纯虚继承                                                        // Virtallnheritance.cpp
+    虚继承                                                        // Virtallnheritance.cpp
         菱形继承,即B继承自A,C继承自A,D继承自B&C，则D中会有两遍A的属性
         虚继承 :在BC继承时添加virtual关键字,此方法会增大BC的大小(添加了虚表),但会在A中属性较大时显著降低内存占用
 
