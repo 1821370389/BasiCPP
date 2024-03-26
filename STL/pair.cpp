@@ -21,9 +21,25 @@ int main()
     
     std::map<int, Student> m;   // 以队组first排序的容器
     m.insert(s);
-    m.insert(s1);
-    std::cout << m[1].name << " " << m[1].age << std::endl;
-    std::cout << m[2].name << " " << m[2].age << std::endl;
+    m.insert({3,{3,"王五"}});
+    m[2] = s1.second;
+    m.insert({3,{4,"王五"}});   // 同set相似,重复的键值无法插入
+    m[3] = {5,"wangwu"};        // [] 可以对键值进行修改
+    for(auto &p : m)
+    {
+        std::cout << p.first << " " << p.second.age << " " << p.second.name << std::endl;
+    }
+    std::cout << "-----------------" << std::endl;
+    for(auto ite = m.begin(); ite != m.end(); ite++)
+    {
+        std::cout << ite->first  << " " << ite->second.age<< " " << ite->second.name << std::endl;
+    }
+    std::cout << "-----------------" << std::endl;
+    auto ite = m.find(3);
+    if(ite != m.end())
+    {
+        std::cout << ite->first << " " << ite->second.age << " " << ite->second.name << std::endl;
+    }
     
     return 0;
 }
